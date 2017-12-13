@@ -53,14 +53,20 @@ class Capture {
     stop() {
         if (this.proc) {
             logger.info('Capture process stopping');
-            this.proc.kill('SIGINT');
+            this.proc.kill('SIGTERM');
         }
     }
 
     discard() {
         this.stop();
         if (this.tempfile) {
-            fs.unlink(this.tempfile);
+            logger.info('Deleting captured tempfile');
+            logger.debug(` > tempfile: ${this.tempfile}`);
+            try {
+                fs.unlink(this.tempfile);
+            } catch(e) {
+                // unable to remove tmp file - no biggie.
+            }
         }
     }
 
