@@ -1,7 +1,11 @@
 import fs from 'fs';
 import tmp from 'tmp';
+import path from 'path';
 import logger from '../../common/logger';
+import settings from '../../../settings';
 import ChildProcess from 'child_process';
+
+const hookPath = path.join(settings.path.user.root, 'hooks');
 
 class Capture {
 
@@ -22,10 +26,11 @@ class Capture {
             this.discard();
         }
 
+        this.tempfile = tmp.fileSync().name;
+
         logger.info('Capture process starting');
         logger.debug(` > file: ${this.tempfile}`);
-
-        this.tempfile = tmp.fileSync().name;
+        logger.debug(` > hook path: ${hookPath}`);
 
         this.proc = ChildProcess.spawn('jack_capture', [
             '-as',                      // absolutely-silent
@@ -34,8 +39,8 @@ class Capture {
             '-c', channels,             // channels
             '-p', 'system:capture*',    // ports
             '-fn', this.tempfile,       // file
-            '-Ho', '~/.omen/alien/hooks/recording-started.sh',
-            '-Hc', '~/.omen/alien/hooks/recording-stopped.sh'
+            '-Ho', path.join(hookPath, 'recording-started.sh'),
+            '-Hc', path.join(hookPath, 'recording-stopped.sh')
         ]);
 
         this.proc.on('close', code => {
