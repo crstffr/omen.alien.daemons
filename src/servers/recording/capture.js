@@ -67,13 +67,15 @@ class Capture {
     discard() {
         this.stop();
         if (this.tempfile) {
-            logger.info('Deleting captured tempfile');
+            logger.info('Removing captured tempfile');
             logger.debug(` > tempfile: ${this.tempfile}`);
-            try {
-                fs.unlink(this.tempfile);
-            } catch(e) {
-                // unable to remove tmp file - no biggie.
-            }
+            fs.unlink(this.tempfile, err => {
+                if (err) {
+                    logger.info('Unable to remove tempfile');
+                    logger.debug(err);
+                }
+            });
+            this.tempfile = null;
         }
     }
 
