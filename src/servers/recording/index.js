@@ -1,7 +1,6 @@
 import path from 'path';
 import mkdirp from 'mkdirp';
 import Daemon from 'start-stop-daemon';
-
 import settings from '../../../settings';
 import Server from './server';
 
