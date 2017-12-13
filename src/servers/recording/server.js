@@ -17,7 +17,7 @@ export default class RecordingServer extends SocketServer {
 
     parseMessage(payload, ip, ws, req) {
 
-        let message = {
+        let message = payload || {
             type: '',
             record: {
                 channels: 0
@@ -27,31 +27,24 @@ export default class RecordingServer extends SocketServer {
             }
         };
 
-        try {
+        switch(message.type) {
+            case 'record':
+                this.record(message.record);
+                break;
 
-            message = JSON.parse(payload);
+            case 'stop':
+                this.stop();
+                break;
 
-            switch(message.type) {
-                case 'record':
-                    this.record(message.record);
-                    break;
+            case 'save':
+                this.save(message.save);
+                break;
 
-                case 'stop':
-                    this.stop();
-                    break;
-
-                case 'save':
-                    this.save(message.save);
-                    break;
-
-                case 'discard':
-                    this.discard();
-                    break;
-            }
-
-        } catch(e) {
-            logger.error(e);
+            case 'discard':
+                this.discard();
+                break;
         }
+
     }
 
     record(opts) {

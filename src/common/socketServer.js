@@ -61,6 +61,13 @@ export default class SocketServer {
                 logger.debug('Message received');
                 logger.debug(` > from: ${req.connection.remoteAddress}`);
                 logger.debug(` > msg: ${msg}`);
+
+                try {
+                    msg = JSON.parse(msg);
+                } catch(e) {
+                    // msg wasn't JSON - no biggie
+                }
+
                 fn(msg, ws, req);
             });
         });
@@ -70,7 +77,7 @@ export default class SocketServer {
         this.wss.clients.forEach(ws => {
             let msg = JSON.stringify(data);
             logger.debug('Send message');
-            logger.debug(` > msg: ${msg}`)
+            logger.debug(` > msg: ${msg}`);
             ws.send(msg);
         });
     }
