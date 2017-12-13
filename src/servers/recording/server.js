@@ -1,6 +1,7 @@
 import fs from 'fs';
 import tmp from 'tmp';
 import path from 'path';
+import wavInfo from 'wav-file-info';
 
 import Capture from './capture';
 import settings from '../../../settings';
@@ -99,28 +100,41 @@ export default class RecordingServer extends SocketServer {
         fs.rename(Capture.tempfile, filepath, err => {
 
             if (err) {
+                logger.notice('Error moving tempfile to user folder')
                 logger.error(err);
                 return;
             }
 
-            samples.insert({
-                name: filename,
-                path: filepath,
-                created: Date.now()
-            }, (err, sample) => {
+            wavInfo.infoByFilename(filepath, (err, info) => {
 
                 if (err) {
+                    logger.notice('Error collecting info on wav file')
                     logger.error(err);
-                    return;
                 }
 
-                this.sendMessage({
-                    type: 'saved',
-                    id: sample._id,
-                    path: filepath
+                samples.insert({
+                    name: filename,
+                    path: filepath,
+                    info: info
+                }, (err, sample) => {
+
+                    if (err) {
+                        logger.notice('Error inserting sample data into table')
+                        logger.error(err);
+                        return;
+                    }
+
+                    this.sendMessage({
+                        type: 'saved',
+                        id: sample._id,
+                        path: filepath,
+                        duration: info.duration
+                    });
+
                 });
 
             });
+
         });
     }
 }
