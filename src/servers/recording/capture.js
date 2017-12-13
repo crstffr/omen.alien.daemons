@@ -33,7 +33,9 @@ class Capture {
             '-b', 16,                   // bitdepth
             '-c', channels,             // channels
             '-p', 'system:capture*',    // ports
-            '-fn', this.tempfile        // file
+            '-fn', this.tempfile,       // file
+            '-Ho', '~/.omen/alien/hooks/recording-started.sh',
+            '-Hc', '~/.omen/alien/hooks/recording-stopped.sh'
         ]);
 
         this.proc.on('close', code => {
