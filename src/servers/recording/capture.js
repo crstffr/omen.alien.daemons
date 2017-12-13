@@ -64,7 +64,7 @@ class Capture {
         }
     }
 
-    discard() {
+    discard(cb) {
         this.stop();
         if (this.tempfile) {
             logger.info('Removing captured tempfile');
@@ -73,6 +73,9 @@ class Capture {
                 if (err) {
                     logger.info('Unable to remove tempfile');
                     logger.debug(err);
+                }
+                if (typeof cb === "function") {
+                    cb(err);
                 }
             });
             this.tempfile = null;

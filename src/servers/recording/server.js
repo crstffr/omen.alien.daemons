@@ -45,28 +45,30 @@ export default class RecordingServer extends SocketServer {
                 break;
 
             case 'proc':
-                this.sendMessage(message);
+                switch (message.msg) {
+                    case "started":
+                        this.sendMessage({
+                            type: 'started',
+                            path: Capture.tempfile
+                        });
+                        break;
+                    case "stopped":
+                        this.sendMessage({
+                            type: 'stopped'
+                        });
+                        break;
+                }
                 break;
         }
 
     }
 
     record(opts) {
-
         opts = opts || {};
-
         let channels = opts.channels || 2;
-
         logger.info(`Start recording`);
         logger.debug(` > channels: ${channels}`);
-
-        let tempfile = Capture.start(channels);
-
-        this.sendMessage({
-            type: 'recording',
-            path: tempfile
-        });
-
+        Capture.start(channels);
     }
 
     stop() {
@@ -74,7 +76,11 @@ export default class RecordingServer extends SocketServer {
     }
 
     discard() {
-        Capture.discard();
+        Capture.discard(err => {
+            this.sendMessage({
+                type: 'discarded'
+            });
+        });
     }
 
     save(opts) {
@@ -115,9 +121,6 @@ export default class RecordingServer extends SocketServer {
                 });
 
             });
-
         });
-
     }
-
 }
