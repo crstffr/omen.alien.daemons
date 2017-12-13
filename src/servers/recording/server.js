@@ -43,6 +43,10 @@ export default class RecordingServer extends SocketServer {
             case 'discard':
                 this.discard();
                 break;
+
+            case 'proc':
+                this.sendMessage(message);
+                break;
         }
 
     }
