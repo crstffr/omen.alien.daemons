@@ -1,7 +1,7 @@
 import fs from 'fs';
 import tmp from 'tmp';
 import path from 'path';
-import logger from '../../common/logger';
+import logger from '../../utils/logger';
 import settings from '../../../settings';
 import ChildProcess from 'child_process';
 

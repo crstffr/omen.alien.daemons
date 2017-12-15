@@ -1,6 +1,6 @@
 
 import Socket from 'ws';
-import logger from './logger';
+import logger from '../utils/logger';
 
 export default class SocketServer {
 

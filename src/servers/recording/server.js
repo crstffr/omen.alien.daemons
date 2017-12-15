@@ -1,12 +1,9 @@
-import fs from 'fs';
-import tmp from 'tmp';
-import path from 'path';
-import wavInfo from 'wav-file-info';
-
 import Capture from './capture';
 import settings from '../../../settings';
 import samples from '../../data/samples';
-import logger from '../../common/logger';
+import logger from '../../utils/logger';
+
+import AudioTools from '../../utils/audioTools';
 import SocketServer from '../../common/socketServer';
 
 export default class RecordingServer extends SocketServer {
@@ -92,12 +89,11 @@ export default class RecordingServer extends SocketServer {
 
         opts = opts || {};
         let filename = opts.filename;
-        let filepath = path.join(settings.path.user.audio, filename + '.raw');
 
         logger.info(`Save file: ${filename}`);
-        logger.debug(` > path: `);
+        logger.debug(` > from: ${Capture.tempfile}`);
 
-        fs.rename(Capture.tempfile, filepath, err => {
+        AudioTools.moveToUserFolder(Capture.tempfile, filename, (err, filepath) => {
 
             if (err) {
                 logger.notice('Error moving tempfile to user folder')
@@ -105,12 +101,12 @@ export default class RecordingServer extends SocketServer {
                 return;
             }
 
-            wavInfo.infoByFilename(filepath, (err, info) => {
+            logger.debug(` > to path: ${filepath}`);
 
-                if (err) {
-                    logger.notice('Error collecting info on wav file')
-                    logger.error(err);
-                }
+            AudioTools.getWavFileInfo(filepath, (err, info) => {
+
+                info = info || {};
+                logger.debug(` > info: ${info}`);
 
                 samples.insert({
                     name: filename,
@@ -119,7 +115,7 @@ export default class RecordingServer extends SocketServer {
                 }, (err, sample) => {
 
                     if (err) {
-                        logger.notice('Error inserting sample data into table')
+                        logger.notice('Error inserting sample data into table');
                         logger.error(err);
                         return;
                     }
@@ -130,11 +126,9 @@ export default class RecordingServer extends SocketServer {
                         path: filepath,
                         duration: info.duration
                     });
-
                 });
-
             });
-
         });
+
     }
 }
