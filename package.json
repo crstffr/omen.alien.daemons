@@ -8,10 +8,6 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "start": "cd ./dist; node ./start.js",
-    "stop": "cd ./dist; node ./stop.js",
-    "status": "cd ./dist; node ./status.js",
-    "restart": "cd ./dist; node ./stop.js; node ./start.js",
     "build": "babel src -d dist"
   },
   "author": "crstffr",
@@ -32,6 +28,7 @@
     "midi": "0.9.5",
     "mkdirp": "0.5.1",
     "nedb": "1.8.0",
+    "nedb-multi": "1.2.2",
     "rootpath": "0.1.2",
     "start-stop-daemon": "0.1.1",
     "tmp": "0.0.33",
