@@ -18,6 +18,7 @@ let settings = {
     },
     server: {
         port: {
+            nedb: 8900,
             recording: 8901,
             playback: 8902,
             waveform: 8903,
