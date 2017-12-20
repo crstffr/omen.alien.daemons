@@ -68,12 +68,17 @@ export default class WaveformServer extends SocketServer {
 
         this.getSampleById(opts.id).then(result => {
 
-            Waveform.generateDat(result.filepath, () => {
+            Waveform.generateDat(result.filepath).then(() => {
                 this.sendMessage({
                     type: 'datGenerated',
                     id: result.sample._id
                 });
+            }).catch(e => {
+                logger.error(e);
             });
+
+        }).catch(e => {
+            logger.error(e);
         });
     }
 
@@ -93,7 +98,12 @@ export default class WaveformServer extends SocketServer {
                     id: result.sample._id,
                     zoom: opts.zoom
                 });
+            }).catch(e => {
+                logger.error(e);
             });
+
+        }).catch(e => {
+            logger.error(e);
         });
     }
 
