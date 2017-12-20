@@ -5,14 +5,14 @@ let path = require('path');
 let spawn = require('child_process').spawn;
 let settings = require('../settings');
 
-let file = process.argv[2];
+let filepath = process.argv[2];
 
-if (!file) {
-    console.log('Missing arguments. wavfile');
+if (!filepath) {
+    console.log('Missing arguments. filepath');
     process.exit(1);
 }
 
-let inFile = path.resolve(file);
+let inFile = path.resolve(filepath);
 let pathInfo = path.parse(inFile);
 let outFile = path.join(pathInfo.dir, pathInfo.name + '.dat');
 

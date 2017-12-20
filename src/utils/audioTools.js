@@ -65,5 +65,9 @@ export default class AudioTools {
         return path.join(sample.path, filename);
     }
 
+    static getSampleInfo(sample) {
+        return sample.files[sample.current];
+    }
+
 
 }

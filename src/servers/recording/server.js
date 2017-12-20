@@ -110,10 +110,12 @@ export default class RecordingServer extends SocketServer {
                 let files = {};
                 let stats = info.stats || {};
                 let header = info.header || {};
+                let waveform = settings.waveform;
 
                 let format = path.parse(pathinfo.filepath).ext;
                 let frames = parseInt(header.sample_rate * info.duration) - 9;
-                let maxWidth = parseInt(frames / settings.waveforms.sampleResolution);
+                let maxWidth = parseInt(frames / waveform.sampleResolution);
+                let maxZoom = maxWidth / (waveform.zoomMultiplier * waveform.width);
 
                 files[pathinfo.fileidx] = {
                     bitsPerSample: header.bits_per_sample,
@@ -124,6 +126,7 @@ export default class RecordingServer extends SocketServer {
                     blkSize: stats.blksize,
                     blocks: stats.blocks,
                     maxWidth: maxWidth,
+                    maxZoom: maxZoom,
                     size: stats.size,
                     format: format,
                     frames: frames

@@ -19,9 +19,7 @@ export default class WaveformServer extends SocketServer {
             type: '',
             opts: {
                 id: '',
-                zoom: 0,
-                width: 0,
-                height: 0
+                zoom: 0
             }
         };
 
@@ -29,37 +27,74 @@ export default class WaveformServer extends SocketServer {
             case 'generateDat':
                 this.generateDat(message.opts);
                 break;
+
+            case 'generatePng':
+                this.generatePng(message.opts);
+                break;
         }
 
+    }
+
+    getSampleById(id) {
+        return new Promise((resolve, reject) => {
+
+            samples.findOne({_id: id}, (err, sample) => {
+
+                if (err) {
+                    logger.notice(`Error while finding sample by id: ${opts.id}`);
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+
+                if (!sample) {
+                    logger.info(`Unable to find sample in DB by id: ${opts.id}`);
+                    reject('Sample not found');
+                    return;
+                }
+
+                resolve({
+                    sample: sample,
+                    info: AudioTools.getSampleInfo(sample),
+                    filepath: AudioTools.getSampleFilepath(sample)
+                });
+            });
+        });
     }
 
     generateDat(opts) {
 
         if (!opts) { return; }
 
-        samples.findOne({_id: opts.id}, (err, sample) => {
+        this.getSampleById(opts.id).then(result => {
 
-            if (err) {
-                logger.notice(`Error while finding sample by id: ${opts.id}`);
-                logger.error(err);
-                return;
-            }
-
-            if (!sample) {
-                logger.info(`Unable to find sample in DB by id: ${opts.id}`);
-                return;
-            }
-
-            let filepath = AudioTools.getSampleFilepath(sample);
-
-            Waveform.generateDat(filepath, () => {
+            Waveform.generateDat(result.filepath, () => {
                 this.sendMessage({
                     type: 'datGenerated',
-                    id: sample._id
+                    id: result.sample._id
                 });
             });
         });
+    }
 
+    generatePng(opts) {
+
+        if (!opts) { return; }
+
+        this.getSampleById(opts.id).then(result => {
+
+            let filepath = result.filepath;
+            let frames = result.info.frames;
+            let maxZoom = result.info.maxZoom;
+
+            Waveform.generatePng(filepath, maxZoom, frames, opts.zoom).then(() => {
+                this.sendMessage({
+                    type: 'pngGenerated',
+                    id: result.sample._id,
+                    zoom: opts.zoom
+                });
+            });
+        });
     }
 
 }
