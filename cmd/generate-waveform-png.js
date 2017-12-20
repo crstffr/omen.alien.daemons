@@ -41,7 +41,7 @@ let inst = spawn('audiowaveform', [
     '-h', waveform.height,
     '--border-color', '000000',
     '--background-color', '000000',
-    '--waveform-color', 'FFFFFF',
+    '--waveform-color', waveform.color,
     '--no-axis-labels'
 ]);
 

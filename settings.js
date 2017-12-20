@@ -28,6 +28,7 @@ let settings = {
     waveform: {
         width: 800,
         height: 415,
+        color: 'FFD000',
         zoomMultiplier: 2,
         sampleResolution: 16 // this shouldn't change
     }
