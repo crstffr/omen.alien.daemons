@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('rootpath')();
 let fs = require('fs');
 let path = require('path');
 let spawn = require('child_process').spawn;

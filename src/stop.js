@@ -5,9 +5,9 @@ const proc = require('child_process');
 
 let daemons = {
     'RecordingDaemon': './servers/recording/index.js',
+    'WaveformDaemon': './servers/waveform/index.js'
     //'TransformDaemon': './servers/transform/index.js',
     //'PlaybackDaemon': './servers/playback/index.js',
-    //'WaveformDaemon': './servers/waveform/index.js'
 };
 
 Object.keys(daemons).forEach(function(key) {

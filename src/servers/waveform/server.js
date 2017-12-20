@@ -2,6 +2,7 @@ import settings from '../../../settings';
 import samples from '../../data/samples';
 import logger from '../../utils/logger';
 
+import Waveform from './waveform';
 import AudioTools from '../../utils/audioTools';
 import SocketServer from '../../common/socketServer';
 
@@ -36,7 +37,7 @@ export default class WaveformServer extends SocketServer {
 
         if (!opts) { return; }
 
-        samples.findOne({ _id: opts.id }, function (err, sample) {
+        samples.findOne({_id: opts.id}, function (err, sample) {
 
             if (err) {
                 logger.notice(`Error while finding sample by id: ${opts.id}`);
@@ -51,8 +52,12 @@ export default class WaveformServer extends SocketServer {
 
             let filepath = AudioTools.getSampleFilepath(sample);
 
-            logger.info(`Generate waveform dat for: ${filepath}`);
-
+            Waveform.generateDat(filepath, () => {
+                this.sendMessage({
+                    type: 'datGenerated',
+                    id: sample._id
+                });
+            });
         });
 
     }

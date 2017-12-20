@@ -108,9 +108,12 @@ export default class RecordingServer extends SocketServer {
                 logger.debug(` > info: ${info}`);
 
                 let files = {};
-                let header = info.header || {};
                 let stats = info.stats || {};
+                let header = info.header || {};
+
                 let format = path.parse(pathinfo.filepath).ext;
+                let frames = parseInt(header.sample_rate * info.duration) - 9;
+                let maxWidth = parseInt(frames / settings.waveforms.sampleResolution);
 
                 files[pathinfo.fileidx] = {
                     bitsPerSample: header.bits_per_sample,
@@ -120,8 +123,10 @@ export default class RecordingServer extends SocketServer {
                     duration: info.duration,
                     blkSize: stats.blksize,
                     blocks: stats.blocks,
+                    maxWidth: maxWidth,
                     size: stats.size,
-                    format: format
+                    format: format,
+                    frames: frames
                 };
 
                 samples.insert({
@@ -142,6 +147,7 @@ export default class RecordingServer extends SocketServer {
                         id: sample._id
                     });
                 });
+
             });
         });
 

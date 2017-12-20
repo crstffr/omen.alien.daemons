@@ -24,7 +24,7 @@ let settings = {
             gpio: 8904
         }
     },
-    waveform: {
+    waveforms: {
         zoomMultiplier: 2,
         sampleResolution: 16 // this shouldn't change
     }

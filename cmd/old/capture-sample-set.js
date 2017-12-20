@@ -3,7 +3,7 @@
 let fs = require('fs');
 let path = require('path');
 let spawn = require('child_process').spawn;
-let settings = require('../settings');
+let settings = require('../../settings');
 
 let file = process.argv[2];
 let zoom = process.argv[3];
