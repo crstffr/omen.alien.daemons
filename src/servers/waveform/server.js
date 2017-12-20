@@ -37,7 +37,7 @@ export default class WaveformServer extends SocketServer {
 
         if (!opts) { return; }
 
-        samples.findOne({_id: opts.id}, function (err, sample) {
+        samples.findOne({_id: opts.id}, (err, sample) => {
 
             if (err) {
                 logger.notice(`Error while finding sample by id: ${opts.id}`);
