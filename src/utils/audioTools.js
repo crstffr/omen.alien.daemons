@@ -1,8 +1,10 @@
 
 import fs from 'fs';
 import path from 'path';
+import mkdirp from 'mkdirp';
 import logger from './logger';
 import wavInfo from 'wav-file-info';
+import samples from '../data/samples';
 import settings from '../../settings';
 import ChildProcess from 'child_process';
 
@@ -19,13 +21,17 @@ export default class AudioTools {
      */
     static moveToUserFolder(oldFilepath, newFilename, cb) {
 
-        let filename = newFilename + '.wav';
-        let filepath = path.join(settings.path.user.audio, filename);
+        let fileidx = 0;
+        let filename = fileidx + '.wav';
+        let dirpath = path.join(settings.path.user.audio, newFilename) + '/';
+        let filepath = path.join(dirpath, filename);
+
+        mkdirp.sync(dirpath);
 
         ChildProcess.exec(`sox --ignore-length ${oldFilepath} ${filepath}`, err => {
 
             if (err) {
-                logger.notice('Error moving file to user folder')
+                logger.notice('Error moving file to user folder');
                 logger.error(err);
             }
 
@@ -34,11 +40,15 @@ export default class AudioTools {
             }
 
             if (typeof cb === 'function') {
-                cb(err, filepath);
+                cb(err, {
+                    path: dirpath,
+                    fileidx: fileidx,
+                    filename: filename,
+                    filepath: filepath
+                });
             }
         });
     }
-
 
     static getWavFileInfo(filepath, cb) {
         wavInfo.infoByFilename(filepath, (err, info) => {
@@ -48,6 +58,11 @@ export default class AudioTools {
             }
             cb(err, info);
         });
+    }
+
+    static getSampleFilepath(sample) {
+        let filename = sample.current + sample.files[sample.current].format;
+        return path.join(sample.path, filename);
     }
 
 

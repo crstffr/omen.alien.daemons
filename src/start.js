@@ -8,7 +8,7 @@ let daemons = {
     //'TransformDaemon': './servers/transform/index.js',
     //'PlaybackDaemon': './servers/playback/index.js',
     //'WaveformDaemon': './servers/waveform/index.js'
-}
+};
 
 Object.keys(daemons).forEach(function(key) {
     console.log(`Starting ${key}...`);

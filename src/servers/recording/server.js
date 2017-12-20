@@ -1,3 +1,4 @@
+import path from 'path';
 import Capture from './capture';
 import settings from '../../../settings';
 import samples from '../../data/samples';
@@ -17,17 +18,15 @@ export default class RecordingServer extends SocketServer {
 
         let message = payload || {
             type: '',
-            record: {
-                channels: 0
-            },
-            save: {
+            opts: {
+                channels: 0,
                 filename: ''
             }
         };
 
         switch(message.type) {
             case 'record':
-                this.record(message.record);
+                this.record(message.opts);
                 break;
 
             case 'stop':
@@ -35,7 +34,7 @@ export default class RecordingServer extends SocketServer {
                 break;
 
             case 'save':
-                this.save(message.save);
+                this.save(message.opts);
                 break;
 
             case 'discard':
@@ -93,25 +92,43 @@ export default class RecordingServer extends SocketServer {
         logger.info(`Save file: ${filename}`);
         logger.debug(` > from: ${Capture.tempfile}`);
 
-        AudioTools.moveToUserFolder(Capture.tempfile, filename, (err, filepath) => {
+        AudioTools.moveToUserFolder(Capture.tempfile, filename, (err, pathinfo) => {
 
             if (err) {
-                logger.notice('Error moving tempfile to user folder')
+                logger.notice('Error moving tempfile to user folder');
                 logger.error(err);
                 return;
             }
 
-            logger.debug(` > to path: ${filepath}`);
+            logger.debug(` > to path: ${pathinfo.filepath}`);
 
-            AudioTools.getWavFileInfo(filepath, (err, info) => {
+            AudioTools.getWavFileInfo(pathinfo.filepath, (err, info) => {
 
                 info = info || {};
                 logger.debug(` > info: ${info}`);
 
+                let files = {};
+                let header = info.header || {};
+                let stats = info.stats || {};
+                let format = path.parse(pathinfo.filepath).ext;
+
+                files[pathinfo.fileidx] = {
+                    bitsPerSample: header.bits_per_sample,
+                    sampleRate: header.sample_rate,
+                    channels: header.num_channels,
+                    byteRate: header.byte_rate,
+                    duration: info.duration,
+                    blkSize: stats.blksize,
+                    blocks: stats.blocks,
+                    size: stats.size,
+                    format: format
+                };
+
                 samples.insert({
                     name: filename,
-                    path: filepath,
-                    info: info
+                    path: pathinfo.path,
+                    current: pathinfo.fileidx,
+                    files: files,
                 }, (err, sample) => {
 
                     if (err) {
@@ -122,9 +139,7 @@ export default class RecordingServer extends SocketServer {
 
                     this.sendMessage({
                         type: 'saved',
-                        id: sample._id,
-                        path: filepath,
-                        duration: info.duration
+                        id: sample._id
                     });
                 });
             });
