@@ -10,8 +10,8 @@ let daemons = {
     //'PlaybackDaemon': './servers/playback/index.js',
 };
 
+console.log(`Getting Status...`);
 Object.keys(daemons).forEach(function(key) {
-    console.log(`Getting Status...`);
     proc.execFile('node', [daemons[key], 'status'], function(err, out) {
         console.log(key + ': ' + out);
     });
