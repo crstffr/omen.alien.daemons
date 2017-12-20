@@ -11,8 +11,8 @@ let daemons = {
 };
 
 Object.keys(daemons).forEach(function(key) {
-    console.log(`Stopping ${key}...`);
+    console.log(`Stopping...`);
     proc.execFile('node', [daemons[key], 'stop'], function(err, out) {
-        console.log('  ' + out);
+        console.log(key + ': ' + out);
     });
 });

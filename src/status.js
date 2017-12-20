@@ -11,8 +11,8 @@ let daemons = {
 };
 
 Object.keys(daemons).forEach(function(key) {
-    console.log(`Status of ${key}...`);
+    console.log(`Getting Status...`);
     proc.execFile('node', [daemons[key], 'status'], function(err, out) {
-        console.log('  ' + out);
+        console.log(key + ': ' + out);
     });
 });
