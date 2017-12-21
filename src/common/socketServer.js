@@ -22,7 +22,7 @@ export default class SocketServer {
 
             ws.isAlive = true;
             ws.send(JSON.stringify({type: 'hello'}));
-            logger.info(`Socket connected`);
+            logger.debug(`Socket connected`);
             logger.debug(` > ip: ${ip}`);
 
             ws.on('pong', () => {
@@ -34,7 +34,7 @@ export default class SocketServer {
             });
 
             ws.on('close', (code, reason) => {
-                logger.info(`Socket closed`);
+                logger.debug(`Socket closed`);
                 logger.debug(` > ip: ${ip}`);
                 logger.debug(` > code: ${code}`);
                 logger.debug(` > reason: ${reason}`);
@@ -45,7 +45,7 @@ export default class SocketServer {
         setInterval(() => {
             this.wss.clients.forEach(ws => {
                 if (!ws.isAlive) {
-                    logger.info('Socket terminated due to unanswered ping');
+                    logger.notice('Socket terminated due to unanswered ping');
                     return ws.terminate();
                 }
                 ws.isAlive = false;

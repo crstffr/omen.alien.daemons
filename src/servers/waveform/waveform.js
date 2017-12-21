@@ -35,7 +35,7 @@ class Waveform {
                     return;
                 }
                 logger.info(`Waveform png generated: ${result}`);
-                resolve();
+                resolve(result);
             });
         });
     }

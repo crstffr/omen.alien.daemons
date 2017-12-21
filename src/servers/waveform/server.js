@@ -68,10 +68,13 @@ export default class WaveformServer extends SocketServer {
 
         this.getSampleById(opts.id).then(result => {
 
-            Waveform.generateDat(result.filepath).then(() => {
+            let id = result.sample._id;
+
+            Waveform.generateDat(result.filepath).then(datPath => {
                 this.sendMessage({
                     type: 'datGenerated',
-                    id: result.sample._id
+                    path: datPath,
+                    id: id,
                 });
             }).catch(e => {
                 logger.error(e);
@@ -88,15 +91,20 @@ export default class WaveformServer extends SocketServer {
 
         this.getSampleById(opts.id).then(result => {
 
+            let id = result.sample._id;
+            let idx = result.sample.current;
+            let files = result.sample.files;
+
             let filepath = result.filepath;
             let frames = result.info.frames;
             let maxZoom = result.info.maxZoom;
 
-            Waveform.generatePng(filepath, maxZoom, frames, opts.zoom).then(() => {
+            Waveform.generatePng(filepath, maxZoom, frames, opts.zoom).then(pngPath => {
                 this.sendMessage({
                     type: 'pngGenerated',
-                    id: result.sample._id,
-                    zoom: opts.zoom
+                    zoom: opts.zoom,
+                    path: pngPath,
+                    id: id
                 });
             }).catch(e => {
                 logger.error(e);
