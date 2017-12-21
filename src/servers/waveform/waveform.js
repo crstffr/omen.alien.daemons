@@ -20,7 +20,7 @@ class Waveform {
                     return;
                 }
                 logger.info(`Waveform dat generated: ${result}`);
-                resolve();
+                resolve(result.trim());
             });
         });
     }
@@ -35,7 +35,7 @@ class Waveform {
                     return;
                 }
                 logger.info(`Waveform png generated: ${result}`);
-                resolve(result);
+                resolve(result.trim());
             });
         });
     }
