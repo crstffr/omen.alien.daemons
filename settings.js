@@ -22,7 +22,8 @@ let settings = {
             recording: 8901,
             playback: 8902,
             waveform: 8903,
-            gpio: 8904
+            gpio: 8904,
+            data: 8905
         }
     },
     waveform: {

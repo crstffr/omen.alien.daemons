@@ -134,6 +134,7 @@ export default class RecordingServer extends SocketServer {
 
                 samples.insert({
                     name: filename,
+                    filename: filename,
                     path: pathinfo.path,
                     current: pathinfo.fileidx,
                     files: files,
