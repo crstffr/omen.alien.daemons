@@ -15,15 +15,19 @@ export default class WaveformServer extends SocketServer {
     parseMessage(payload, ip, ws, req) {
 
         let message = payload || {
-                type: '',
-                opts: {
-                    id: ''
-                }
-            };
+            type: '',
+            opts: {
+                id: '',
+                name: ''
+            }
+        };
+
+        let opts = message.opts;
 
         switch(message.type) {
+
             case 'getSample':
-                this.getSampleById(message.opts.id)
+                this.getSampleById(opts.id)
                     .then(data => {
                         this.sendMessage({
                             type: 'sampleData',
@@ -39,6 +43,22 @@ export default class WaveformServer extends SocketServer {
                         });
                     });
                 break;
+
+            case 'renameSample':
+                this.renameSample(opts.id, opts.name)
+                    .then(data => {
+                        this.sendMessage({
+                            type: 'sampleRenamed',
+                            id: opts.id
+                        });
+                    })
+                    .catch(e => {
+                        this.sendMessage({
+                            type: 'sampleRenamed',
+                            error: e,
+                        });
+                    });
+                break;
         }
 
     }
@@ -49,14 +69,14 @@ export default class WaveformServer extends SocketServer {
             samples.findOne({_id: id}, (err, sample) => {
 
                 if (err) {
-                    logger.notice(`Error while finding sample by id: ${opts.id}`);
+                    logger.notice(`Error while finding sample by id: ${id}`);
                     logger.error(err);
                     reject(err);
                     return;
                 }
 
                 if (!sample) {
-                    logger.info(`Unable to find sample in DB by id: ${opts.id}`);
+                    logger.info(`Unable to find sample in DB by id: ${id}`);
                     reject('Sample not found');
                     return;
                 }
@@ -66,6 +86,20 @@ export default class WaveformServer extends SocketServer {
                     info: AudioTools.getSampleInfo(sample),
                     filepath: AudioTools.getSampleFilepath(sample)
                 });
+            });
+        });
+    }
+
+    renameSample(id, name) {
+        return new Promise((resolve, reject) => {
+            samples.update({_id: id}, {$set: {name: name}}, err => {
+                if (err) {
+                    logger.notice(`Error while renaming sample: ${id}, ${name}`);
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve();
             });
         });
     }

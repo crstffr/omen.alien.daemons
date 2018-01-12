@@ -10,10 +10,8 @@ let settings = {
         bin: path.join(root, 'cmd') + '/',
         user: {
             root: user,
-            logs: path.join(user, 'logs') + '/',
             data: path.join(user, 'data') + '/',
             audio: path.join(user, 'audio') + '/',
-            images: path.join(user, 'images') + '/'
         }
     },
     server: {
@@ -40,7 +38,5 @@ module.exports = settings;
 // Make sure our user paths exist.
 
 mkdirp.sync(settings.path.user.root);
-mkdirp.sync(settings.path.user.logs);
 mkdirp.sync(settings.path.user.data);
 mkdirp.sync(settings.path.user.audio);
-mkdirp.sync(settings.path.user.images);
