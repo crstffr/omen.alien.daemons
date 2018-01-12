@@ -44,6 +44,22 @@ export default class WaveformServer extends SocketServer {
                     });
                 break;
 
+            case 'fetchAllSamples':
+                this.getSampleById(opts.id)
+                    .then(data => {
+                        this.sendMessage({
+                            type: 'allSamples',
+                            result: data.result,
+                        });
+                    })
+                    .catch(e => {
+                        this.sendMessage({
+                            type: 'allSamples',
+                            error: e,
+                        });
+                    });
+                break;
+
             case 'renameSample':
                 this.renameSample(opts.id, opts.name)
                     .then(data => {
@@ -65,26 +81,38 @@ export default class WaveformServer extends SocketServer {
 
     getSampleById(id) {
         return new Promise((resolve, reject) => {
-
             samples.findOne({_id: id}, (err, sample) => {
-
                 if (err) {
                     logger.notice(`Error while finding sample by id: ${id}`);
                     logger.error(err);
                     reject(err);
                     return;
                 }
-
                 if (!sample) {
                     logger.info(`Unable to find sample in DB by id: ${id}`);
                     reject('Sample not found');
                     return;
                 }
-
                 resolve({
                     sample: sample,
                     info: AudioTools.getSampleInfo(sample),
                     filepath: AudioTools.getSampleFilepath(sample)
+                });
+            });
+        });
+    }
+
+    fetchAllSamples(sort) {
+        return new Promise((resolve, reject) => {
+            samples.find({}).sort({name: 1}).exec((err, samples) => {
+                if (err) {
+                    logger.notice(`Error while fetching all samples`);
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve({
+                    result: samples
                 });
             });
         });
@@ -100,6 +128,7 @@ export default class WaveformServer extends SocketServer {
                     return;
                 }
                 resolve();
+                logger.info(`Renamed sample id ${id} to "${name}"`);
             });
         });
     }
