@@ -45,7 +45,7 @@ export default class WaveformServer extends SocketServer {
                 break;
 
             case 'fetchAllSamples':
-                this.getSampleById(opts.id)
+                this.fetchAllSamples()
                     .then(data => {
                         this.sendMessage({
                             type: 'allSamples',
@@ -102,7 +102,7 @@ export default class WaveformServer extends SocketServer {
         });
     }
 
-    fetchAllSamples(sort) {
+    fetchAllSamples() {
         return new Promise((resolve, reject) => {
             samples.find({}).sort({name: 1}).exec((err, samples) => {
                 if (err) {
