@@ -49,7 +49,7 @@ export default class WaveformServer extends SocketServer {
                     .then(result => {
                         this.sendMessage({
                             type: 'allSamples',
-                            result: result,
+                            sampleCollection: result,
                         });
                     })
                     .catch(e => {
