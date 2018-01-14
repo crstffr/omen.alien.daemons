@@ -46,10 +46,10 @@ export default class WaveformServer extends SocketServer {
 
             case 'fetchAllSamples':
                 this.fetchAllSamples()
-                    .then(data => {
+                    .then(result => {
                         this.sendMessage({
                             type: 'allSamples',
-                            result: data.result,
+                            result: result,
                         });
                     })
                     .catch(e => {
@@ -111,9 +111,16 @@ export default class WaveformServer extends SocketServer {
                     reject(err);
                     return;
                 }
-                resolve({
-                    result: samples
+                let result = samples.map(sample => {
+                    return {
+                        id: sample._id,
+                        name: sample.name,
+                        length: sample.files[sample.current].duration,
+                        created: sample.files[sample.current].created
+                    }
                 });
+                logger.info(result);
+                resolve(result);
             });
         });
     }

@@ -125,6 +125,7 @@ export default class RecordingServer extends SocketServer {
                     duration: info.duration,
                     blkSize: stats.blksize,
                     blocks: stats.blocks,
+                    created: Date.now(),
                     maxWidth: maxWidth,
                     maxZoom: maxZoom,
                     size: stats.size,
