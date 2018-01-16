@@ -115,11 +115,9 @@ export default class WaveformServer extends SocketServer {
                     return {
                         id: sample._id,
                         name: sample.name,
-                        length: sample.files[sample.current].duration,
-                        created: sample.files[sample.current].created
+                        length: sample.files[sample.current].duration
                     }
                 });
-                logger.info(result);
                 resolve(result);
             });
         });
