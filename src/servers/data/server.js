@@ -1,3 +1,5 @@
+import path from 'path';
+import rimraf from 'rimraf';
 import settings from '../../../settings';
 import samples from '../../data/samples';
 import logger from '../../utils/logger';
@@ -41,6 +43,22 @@ export default class WaveformServer extends SocketServer {
                     .catch(e => {
                         this.sendMessage({
                             type: 'sampleData',
+                            error: e,
+                        });
+                    });
+                break;
+
+            case 'deleteSample':
+                this.deleteSampleById(opts.id)
+                    .then(data => {
+                        this.sendMessage({
+                            type: 'sampleDeleted',
+                            id: data.id
+                        });
+                    })
+                    .catch(e => {
+                        this.sendMessage({
+                            type: 'sampleDeleted',
                             error: e,
                         });
                     });
@@ -101,6 +119,31 @@ export default class WaveformServer extends SocketServer {
                     info: AudioTools.getSampleInfo(sample),
                     filepath: AudioTools.getSampleFilepath(sample)
                 });
+            });
+        });
+    }
+
+    deleteSampleById(id) {
+        logger.info(`Deleting sample by id: ${id}...`);
+
+        return this.getSampleById(id).then(data => {
+
+            let filepath = path.join(settings.path.user.audio, data.sample.filename, '/');
+            logger.info(`Deleting files in: ${filepath}`);
+
+        });
+
+        return new Promise((resolve, reject) => {
+            resolve({id: id});
+            samples.remove({_id: id}, (err, samples) => {
+                if (err) {
+                    logger.notice(`Error while deleting sample id: ${id}`);
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+                logger.info(`Deleted sample with id: ${id}`);
+                resolve({id: id});
             });
         });
     }

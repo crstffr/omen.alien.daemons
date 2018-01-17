@@ -29,6 +29,7 @@
     "mkdirp": "0.5.1",
     "nedb": "1.8.0",
     "nedb-multi": "1.2.2",
+    "rimraf": "2.6.2",
     "rootpath": "0.1.2",
     "start-stop-daemon": "0.1.1",
     "tmp": "0.0.33",
