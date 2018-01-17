@@ -24,6 +24,8 @@ export default class WaveformServer extends SocketServer {
 
         let opts = message.opts;
 
+        logger.info(`Incoming request: ${message.type}`);
+
         switch(message.type) {
 
             case 'getSample':
@@ -80,6 +82,7 @@ export default class WaveformServer extends SocketServer {
     }
 
     getSampleById(id) {
+        logger.info(`Get sample by id: ${id}...`);
         return new Promise((resolve, reject) => {
             samples.findOne({_id: id}, (err, sample) => {
                 if (err) {
@@ -103,6 +106,7 @@ export default class WaveformServer extends SocketServer {
     }
 
     fetchAllSamples() {
+        logger.info(`Fetch all samples...`);
         return new Promise((resolve, reject) => {
             samples.find({}).sort({name: 1}).exec((err, samples) => {
                 if (err) {
@@ -119,6 +123,7 @@ export default class WaveformServer extends SocketServer {
                         created: sample.files[sample.current].created || 0
                     }
                 });
+                logger.info(`Returning set of ${result.length} samples`);
                 resolve(result);
             });
         });
