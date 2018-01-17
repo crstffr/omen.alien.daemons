@@ -120,7 +120,7 @@ export default class WaveformServer extends SocketServer {
                         id: sample._id,
                         name: sample.name,
                         length: sample.files[sample.current].duration,
-                        //created: sample.files[sample.current].created || 0
+                        createdOn: sample.files[sample.current].created || 100
                     }
                 });
                 logger.info(`Returning set of ${result.length} samples`);
