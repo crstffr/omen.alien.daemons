@@ -53,7 +53,7 @@ export default class WaveformServer extends SocketServer {
                     .then(data => {
                         this.sendMessage({
                             type: 'sampleDeleted',
-                            id: data.id
+                            id: opts.id
                         });
                     })
                     .catch(e => {
@@ -125,25 +125,28 @@ export default class WaveformServer extends SocketServer {
 
     deleteSampleById(id) {
         logger.info(`Deleting sample by id: ${id}...`);
-
-        return this.getSampleById(id).then(data => {
-
-            let filepath = path.join(settings.path.user.audio, data.sample.filename, '/');
-            logger.info(`Deleting files in: ${filepath}`);
-
-        });
-
         return new Promise((resolve, reject) => {
-            resolve({id: id});
-            samples.remove({_id: id}, (err, samples) => {
-                if (err) {
-                    logger.notice(`Error while deleting sample id: ${id}`);
-                    logger.error(err);
-                    reject(err);
-                    return;
-                }
-                logger.info(`Deleted sample with id: ${id}`);
-                resolve({id: id});
+            this.getSampleById(id).then(data => {
+                let filepath = path.join(settings.path.user.audio, data.sample.filename, '/');
+                logger.info(`Deleting files in: ${filepath}`);
+                rimraf(filepath, err => {
+                    if (err) {
+                        logger.notice(`Error while removing user data files for sample id: ${id}`);
+                        logger.error(err);
+                        reject(err);
+                        return;
+                    }
+                    samples.remove({_id: id}, err => {
+                        if (err) {
+                            logger.notice(`Error while removing database record for sample id: ${id}`);
+                            logger.error(err);
+                            reject(err);
+                            return;
+                        }
+                        logger.info(`Successfully deleted sample with id: ${id}`);
+                        resolve();
+                    });
+                });
             });
         });
     }
