@@ -35,7 +35,12 @@ export default class RecordingServer extends SocketServer {
         switch(message.type) {
 
             case 'registerPreview':
-                this.registerPreview(opts.id);
+                this.registerPreview(opts.id).then(() => {
+                    this.sendMessage({
+                        type: 'previewRegistered',
+                        id: opts.id,
+                    });
+                });
                 break;
 
             case 'playPreview':
@@ -54,12 +59,14 @@ export default class RecordingServer extends SocketServer {
         logger.info(`Registering preview by id: ${id}...`);
         return new Promise((resolve, reject) => {
             samples.findOne({_id: id}, (err, sample) => {
+
                 if (err) {
                     logger.notice(`Error while finding sample by id: ${id}`);
                     logger.error(err);
                     reject(err);
                     return;
                 }
+
                 let filepath = AudioTools.getSampleFilepath(sample);
                 logger.info(`Registering preview filepath: ${filepath}`);
 
@@ -68,20 +75,24 @@ export default class RecordingServer extends SocketServer {
                 this.previewBuffer.on('end', () => {
                     logger.info('preview buffer ended');
                 });
-                
+
                 this.previewBuffer.on('error', err => {
                     logger.info('preview buffer error');
                     logger.error(err);
                 });
+
+                resolve();
             });
         });
     }
 
     playPreview() {
+        logger.info(`Play preview...`);
         this.previewBuffer.pipe(this.speaker);
     }
 
     stopPreview() {
+        logger.info(`Stop preview...`);
         this.previewBuffer.unpipe();
     }
 
