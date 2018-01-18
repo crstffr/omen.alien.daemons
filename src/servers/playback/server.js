@@ -1,16 +1,22 @@
+import fs from 'fs';
 import path from 'path';
 import settings from '../../../settings';
 import samples from '../../data/samples';
 import logger from '../../utils/logger';
 
+import Speaker from 'speaker';
 import AudioTools from '../../utils/audioTools';
 import SocketServer from '../../common/socketServer';
 
 export default class RecordingServer extends SocketServer {
 
+    speaker;
+    previewBuffer;
+
     constructor() {
         super(settings.server.port.playback);
         this.onMessage(this.parseMessage.bind(this));
+        this.speaker = new Speaker();
     }
 
     parseMessage(payload, ip, ws, req) {
@@ -33,9 +39,11 @@ export default class RecordingServer extends SocketServer {
                 break;
 
             case 'playPreview':
+                this.playPreview();
                 break;
 
             case 'stopPreview':
+                this.stopPreview();
                 break;
 
         }
@@ -54,16 +62,27 @@ export default class RecordingServer extends SocketServer {
                 }
                 let filepath = AudioTools.getSampleFilepath(sample);
                 logger.info(`Registering preview filepath: ${filepath}`);
+
+                this.previewBuffer = fs.createReadStream(filepath);
+
+                this.previewBuffer.on('end', () => {
+                    logger.info('preview buffer ended');
+                });
+                
+                this.previewBuffer.on('error', err => {
+                    logger.info('preview buffer error');
+                    logger.error(err);
+                });
             });
         });
     }
 
     playPreview() {
-
+        this.previewBuffer.pipe(this.speaker);
     }
 
     stopPreview() {
-
+        this.previewBuffer.unpipe();
     }
 
 }
