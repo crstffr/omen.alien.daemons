@@ -102,8 +102,7 @@ export default class RecordingServer extends SocketServer {
     }
 
     playPreview() {
-        // buffers.bufferToStream(this.previewBuffer).pipe(this.speaker);
-        this.previewBuffer.pipe(this.speaker);
+        bufferUtils.bufferToStream(this.previewBuffer).pipe(this.speaker);
     }
 
     stopPreview() {
