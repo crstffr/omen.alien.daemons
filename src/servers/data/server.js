@@ -30,26 +30,44 @@ export default class WaveformServer extends SocketServer {
 
         switch(message.type) {
 
-            case 'getSample':
-                this.getSampleById(opts.id)
+            case 'getSampleData':
+                this.getSampleData(opts.id)
                     .then(data => {
                         this.sendMessage({
+                            id: opts.id,
                             type: 'sampleData',
-                            info: data.info,
-                            sample: data.sample,
-                            filepath: data.filepath
+                            sampleData: data
                         });
                     })
                     .catch(e => {
                         this.sendMessage({
+                            id: opts.id,
                             type: 'sampleData',
                             error: e,
                         });
                     });
                 break;
 
+            case 'getSampleFilePath':
+                this.getSampleFilePath(opts.id)
+                    .then(filepath => {
+                        this.sendMessage({
+                            type: 'sampleFilePath',
+                            id: opts.id,
+                            path: filepath
+                        });
+                    })
+                    .catch(e => {
+                        this.sendMessage({
+                            type: 'sampleFilePath',
+                            id: opts.id,
+                            error: e,
+                        });
+                    });
+                break;
+
             case 'deleteSample':
-                this.deleteSampleById(opts.id)
+                this.deleteSample(opts.id)
                     .then(data => {
                         this.sendMessage({
                             type: 'sampleDeleted',
@@ -59,6 +77,7 @@ export default class WaveformServer extends SocketServer {
                     .catch(e => {
                         this.sendMessage({
                             type: 'sampleDeleted',
+                            id: opts.id,
                             error: e,
                         });
                     });
@@ -91,6 +110,7 @@ export default class WaveformServer extends SocketServer {
                     .catch(e => {
                         this.sendMessage({
                             type: 'sampleRenamed',
+                            id: opts.id,
                             error: e,
                         });
                     });
@@ -99,7 +119,12 @@ export default class WaveformServer extends SocketServer {
 
     }
 
-    getSampleById(id) {
+    getSampleFilePath(id) {
+        logger.info(`Get sample filepath by id: ${id}...`);
+        return this.getSampleData(id).then(data => data.filepath);
+    }
+
+    getSampleData(id) {
         logger.info(`Get sample by id: ${id}...`);
         return new Promise((resolve, reject) => {
             samples.findOne({_id: id}, (err, sample) => {
@@ -115,19 +140,21 @@ export default class WaveformServer extends SocketServer {
                     return;
                 }
                 resolve({
-                    sample: sample,
+                    id: sample._id,
+                    name: sample.name,
+                    filename: sample.filename,
                     info: AudioTools.getSampleInfo(sample),
-                    filepath: AudioTools.getSampleFilepath(sample)
+                    filepath: AudioTools.getSampleFilepath(sample),
                 });
             });
         });
     }
 
-    deleteSampleById(id) {
+    deleteSample(id) {
         logger.info(`Deleting sample by id: ${id}...`);
         return new Promise((resolve, reject) => {
-            this.getSampleById(id).then(data => {
-                let filepath = path.join(settings.path.user.audio, data.sample.filename, '/');
+            this.getSampleData(id).then(data => {
+                let filepath = path.join(settings.path.user.audio, data.filename, '/');
                 logger.info(`Deleting files in: ${filepath}`);
                 rimraf(filepath, err => {
                     if (err) {
